@@ -1,5 +1,5 @@
 // Deterministic survival engine. team: array of 6 (one per ROLES index) of character objects.
-const TUNE = { T: 9.2, k: 1.6, wAvg: 0.65, wMin: 0.35 };
+const TUNE = { T: 8.4, k: 1.3, wAvg: 0.65, wMin: 0.35 };
 
 function scoreTeam(team, FILMS, ROLES) {
   const leaderBase = team[0].scores[0];
@@ -59,7 +59,7 @@ const WEAK_LINES = [
   "Nobody took charge, and the group split up on Day 2. You know how that goes.",
   "Nobody could figure out how to fix the radio, the generator, or the plan.",
   "When the horde broke through the fence, nobody could hold the door.",
-  "A small scratch on Day 4 turned into a fever nobody knew how to treat.",
+  "Nobody had a trick up their sleeve when the plan fell apart on Day 4.",
   "Nobody scouted the mall before you moved in. It was not empty.",
   "Plenty of courage, not a lot of aim. The ammo ran out fast.",
 ];
@@ -67,7 +67,7 @@ const STRONG_LINES = [
   "Your leader kept everyone moving in the same direction, which is rarer than you'd think.",
   "Your brains rigged the water, the power, and a truly great alarm system.",
   "Your muscle cleared doorways like it was a hobby.",
-  "Your medic stitched up everything and everyone, twice.",
+  "Your wildcard pulled off the move nobody saw coming, and it saved everyone.",
   "Your scout always found the back way out.",
   "Your marksman made every shot count from the rooftop.",
 ];

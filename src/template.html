@@ -132,9 +132,10 @@ details.how b{color:var(--ink);font-weight:600}
   <details class="how">
     <summary>How survival is scored</summary>
     <ul>
-      <li>Every character has a hidden score for each of the six roles. Iron Man makes a better Brains than a Medic. Put people where they shine.</li>
+      <li>Every character has a hidden score for each of the six roles. Iron Man makes a better Brains than a Scout. Put people where they shine.</li>
+      <li>The <b>Wildcard</b> is your unexpected asset: a weird power, a gadget, a lucky streak, or a very good dog.</li>
       <li><b>Leader counts the most.</b> A strong leader also keeps hotheads in line.</li>
-      <li><b>Your weakest link drags everyone down.</b> One empty-handed Medic can sink a team of legends.</li>
+      <li><b>Your weakest link drags everyone down.</b> One hopeless Marksman can sink a team of legends.</li>
       <li><b>Personalities matter.</b> Some characters bring the whole group's morale up. Big egos clash. Lone wolves hate group roles. And not everyone in a movie is on the hero's side.</li>
       <li>Teammates from the same franchise work better together. A crew from all five genres earns a crossover bonus.</li>
       <li>Six spins, two reshoots. Same crew, same odds, every time. It's supposed to be hard.</li>
@@ -146,7 +147,7 @@ details.how b{color:var(--ink);font-weight:600}
 /*DATA*/
 /*ENGINE*/
 
-const ICONS = ["👑","🧠","💪","🩹","🔦","🎯"];
+const ICONS = ["👑","🧠","💪","🃏","🔦","🎯"];
 let S;
 function fresh(){ return { team:Array(6).fill(null), used:[], film:null, picked:null, reshoots:2, phase:"idle" }; }
 function charRef(c){ return c ? [c.film, FILMS[c.film].chars.indexOf(c)] : null; }
