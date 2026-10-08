@@ -1,0 +1,291 @@
+<title>Final Reel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: a drive-in at night. Marquee header, the reel on top, the crew call sheet below, results replace the reel. Single dark look by choice. */
+:root{
+  color-scheme: dark;
+  --night:#0d1416;      /* page ground, deep blue-green night */
+  --panel:#152022;      /* raised surfaces */
+  --panel-2:#1c2a2d;
+  --line:#2a3b3e;
+  --ink:#e9e4d8;        /* warm screen-light text */
+  --muted:#93a29f;
+  --bulb:#f2b544;       /* sodium marquee amber */
+  --bulb-dim:#8a6a2c;
+  --blood:#c4473a;      /* used for danger/negatives */
+  --mint:#7cc4a3;       /* positives */
+  --f-display:"Bungee", "Arial Black", Impact, sans-serif;
+  --f-body:"Barlow", "Helvetica Neue", Arial, sans-serif;
+  --f-label:"Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+*{box-sizing:border-box}
+html,body{background:var(--night);color:var(--ink)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.45;
+  background:radial-gradient(1200px 500px at 50% -120px, #1d3133 0%, var(--night) 70%) var(--night);
+  min-height:100%}
+.wrap{max-width:880px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:flex;flex-direction:column;gap:22px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--bulb);outline-offset:2px}
+
+/* Marquee */
+.marquee{position:relative;text-align:center;padding:22px 16px 18px;border:2px solid var(--bulb-dim);border-radius:6px;background:linear-gradient(#111a1c,#0f1719)}
+.marquee::before,.marquee::after{content:"";position:absolute;left:10px;right:10px;height:6px;
+  background:radial-gradient(circle,var(--bulb) 0 2px,transparent 2.5px) 0 0/16px 6px repeat-x;opacity:.85}
+.marquee::before{top:6px}.marquee::after{bottom:6px}
+.marquee h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(2.2rem,8vw,3.8rem);letter-spacing:.04em;line-height:1;color:var(--bulb);
+  text-shadow:0 0 18px rgba(242,181,68,.35)}
+.marquee p{margin:8px 0 0;font-family:var(--f-label);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.9rem;color:var(--muted)}
+.marquee p b{color:var(--ink);font-weight:600}
+
+.eyebrow{font-family:var(--f-label);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:.8rem;color:var(--muted);margin:0}
+
+/* Reel */
+.reel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.reel-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.reshoots{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+.reshoots i{width:12px;height:12px;border-radius:50%;background:var(--bulb);display:inline-block;box-shadow:0 0 8px rgba(242,181,68,.5)}
+.reshoots i.used{background:transparent;border:1.5px solid var(--bulb-dim);box-shadow:none}
+.screen{border-radius:6px;background:#0a1012;border:1px solid var(--line);padding:18px;min-height:118px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.film-title{font-family:var(--f-label);font-weight:700;font-size:clamp(1.4rem,4.5vw,2rem);line-height:1.1;text-wrap:balance;margin:0}
+.film-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.chip{font-family:var(--f-label);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:.75rem;padding:2px 8px;border-radius:3px;border:1px solid currentColor}
+.g-SH{color:#7fb0e6}.g-AC{color:#e88b5a}.g-AD{color:#d8c25a}.g-FS{color:#b79be8}.g-HO{color:#e06a6a}
+.screen.spinning .film-title{filter:blur(1.5px);opacity:.75}
+.hint{color:var(--muted);margin:0;font-size:.95rem}
+.cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cast button{text-align:left;background:var(--panel-2);border:1.5px solid var(--line);border-radius:6px;padding:10px 12px;font-family:var(--f-label);font-weight:600;font-size:1.05rem;line-height:1.15;min-height:48px}
+.cast button:hover:not(:disabled){border-color:var(--bulb-dim)}
+.cast button[aria-pressed="true"]{border-color:var(--bulb);background:#2a2716;color:var(--bulb)}
+.cast button:disabled{opacity:.4;cursor:not-allowed}
+.cast button small{display:block;font-family:var(--f-body);font-weight:400;font-size:.75rem;color:var(--muted);margin-top:2px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border-radius:6px;padding:12px 18px;font-family:var(--f-display);font-size:1rem;letter-spacing:.04em;border:2px solid var(--bulb);background:var(--bulb);color:#1a1405}
+.btn:hover:not(:disabled){filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--bulb)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* Call sheet */
+.sheet{display:flex;flex-direction:column;gap:10px}
+.slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:620px){.slots{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.slot{position:relative;text-align:left;background:var(--panel);border:1.5px dashed var(--line);border-radius:8px;padding:12px;min-height:92px;display:flex;flex-direction:column;gap:4px}
+.slot .role{font-family:var(--f-label);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;color:var(--muted)}
+.slot .who{font-family:var(--f-label);font-weight:700;font-size:1.15rem;line-height:1.1;min-width:0;overflow-wrap:anywhere}
+.slot .from{font-size:.78rem;color:var(--muted);line-height:1.25}
+.slot.filled{border-style:solid;border-color:var(--line);background:var(--panel-2)}
+.slot.open .who{color:#4e5f5e}
+.slot.target{border-color:var(--bulb);border-style:solid;background:#1f2416;cursor:pointer;animation:pulse 1.4s ease-in-out infinite}
+.slot.target .who{color:var(--bulb)}
+@keyframes pulse{50%{box-shadow:0 0 0 3px rgba(242,181,68,.18)}}
+
+/* Results */
+.result{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px 18px;display:flex;flex-direction:column;gap:16px}
+.odds{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.pct{font-family:var(--f-display);font-size:clamp(3.4rem,15vw,6rem);line-height:.9;color:var(--bulb);text-shadow:0 0 24px rgba(242,181,68,.3);font-variant-numeric:tabular-nums}
+.pct.low{color:var(--blood);text-shadow:0 0 24px rgba(196,71,58,.3)}
+.odds .lbl{font-family:var(--f-label);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.verdict{margin:0;font-family:var(--f-label);font-weight:700;font-size:1.6rem;line-height:1.1;text-wrap:balance}
+.blurb{margin:4px 0 0;color:var(--muted)}
+.story{margin:0;padding:12px 14px;border-left:3px solid var(--bulb-dim);background:#0f1719;display:flex;flex-direction:column;gap:6px;font-size:.98rem}
+.story p{margin:0}
+.breakdown{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:96px minmax(0,1fr) 52px;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.brow .r{font-family:var(--f-label);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:.78rem;color:var(--muted);padding-top:3px}
+.brow .n{font-family:var(--f-label);font-weight:700;font-size:1.1rem;line-height:1.15}
+.brow .n small{font-family:var(--f-body);font-weight:400;font-size:.78rem;color:var(--muted);display:block}
+.mods{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.mod{font-family:var(--f-mono);font-size:.72rem;padding:2px 6px;border-radius:3px;background:#0f1719;border:1px solid var(--line)}
+.mod.pos{color:var(--mint)}.mod.neg{color:var(--blood)}
+.score{font-family:var(--f-mono);font-weight:600;text-align:right;font-variant-numeric:tabular-nums;padding-top:2px}
+.score small{display:block;font-weight:500;font-size:.7rem;color:var(--muted)}
+.bar{height:5px;border-radius:3px;background:#0a1012;margin-top:6px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--bulb)}
+.bar span.weak{background:var(--blood)}
+.toast{font-family:var(--f-mono);font-size:.82rem;color:var(--mint);align-self:center}
+textarea.share{width:100%;min-height:150px;background:#0a1012;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px;font-family:var(--f-mono);font-size:.8rem}
+
+details.how{background:transparent;border-top:1px solid var(--line);padding-top:14px}
+details.how summary{cursor:pointer;font-family:var(--f-label);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.85rem;color:var(--bulb)}
+details.how ul{margin:10px 0 0;padding-left:20px;color:var(--muted);display:flex;flex-direction:column;gap:6px;max-width:65ch}
+details.how b{color:var(--ink);font-weight:600}
+@media (max-width:480px){.brow{grid-template-columns:72px minmax(0,1fr) 46px}}
+@media (prefers-reduced-motion:reduce){.slot.target{animation:none}}
+</style>
+
+<div class="wrap">
+  <header class="marquee">
+    <h1>FINAL REEL</h1>
+    <p>Spin a movie. Draft its hero. <b>Survive the zombie apocalypse.</b></p>
+  </header>
+
+  <section class="reel" id="reel" aria-live="polite"></section>
+  <section class="result" id="result" hidden aria-live="polite"></section>
+
+  <section class="sheet">
+    <h2 class="eyebrow">Your survival crew</h2>
+    <div class="slots" id="slots"></div>
+  </section>
+
+  <details class="how">
+    <summary>How survival is scored</summary>
+    <ul>
+      <li>Every character has a hidden score for each of the six roles. Iron Man makes a better Brains than a Medic. Put people where they shine.</li>
+      <li><b>Leader counts the most.</b> A strong leader also keeps hotheads in line.</li>
+      <li><b>Your weakest link drags everyone down.</b> One empty-handed Medic can sink a team of legends.</li>
+      <li><b>Personalities matter.</b> Some characters bring the whole group's morale up. Big egos clash. Lone wolves hate group roles. And not everyone in a movie is on the hero's side.</li>
+      <li>Teammates from the same franchise work better together. A crew from all five genres earns a crossover bonus.</li>
+      <li>Six spins, two reshoots. Same crew, same odds, every time. It's supposed to be hard.</li>
+    </ul>
+  </details>
+</div>
+
+<script>
+/*DATA*/
+/*ENGINE*/
+
+const ICONS = ["👑","🧠","💪","🩹","🔦","🎯"];
+let S;
+function fresh(){ return { team:Array(6).fill(null), used:[], film:null, picked:null, reshoots:2, phase:"idle" }; }
+function charRef(c){ return c ? [c.film, FILMS[c.film].chars.indexOf(c)] : null; }
+function fromRef(r){ return r ? FILMS[r[0]].chars[r[1]] : null; }
+function snapshot(){ return { team:S.team.map(charRef), used:S.used, film:S.film, picked:S.picked, reshoots:S.reshoots, phase:S.phase==="spinning"?"film":S.phase }; }
+function restore(d){ const s=fresh(); if(!d||!d.team) return s; s.team=d.team.map(fromRef); s.used=d.used||[]; s.film=d.film; s.picked=d.picked; s.reshoots=d.reshoots; s.phase=d.phase||"idle"; return s; }
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const filled = () => S.team.filter(Boolean).length;
+const onTeam = name => S.team.some(c => c && c.name === name);
+
+function randomFilm(){
+  const pool = FILMS.filter(f => !S.used.includes(f.id));
+  return pool[Math.floor(Math.random()*pool.length)].id;
+}
+
+function spin(isReshoot){
+  if (isReshoot){ if (S.reshoots<=0) return; S.reshoots--; }
+  const target = randomFilm();
+  S.used.push(target); S.picked=null; S.phase="spinning"; S.film=target;
+  if (reduce){ S.phase="film"; render(); return; }
+  let n=0; const steps=14;
+  const tick = () => {
+    n++;
+    const f = n<steps ? FILMS[Math.floor(Math.random()*FILMS.length)] : FILMS[target];
+    renderScreen(f, n<steps);
+    if (n<steps) setTimeout(tick, 40 + n*9); else { S.phase="film"; render(); }
+  };
+  renderReelShell(); tick();
+}
+
+function renderScreen(f, blur){
+  const sc = document.querySelector(".screen"); if(!sc) return;
+  sc.classList.toggle("spinning", !!blur);
+  sc.innerHTML = `<p class="film-title">${esc(f.title)}</p>
+    <div class="film-meta"><span class="chip g-${f.genre}">${GENRES[f.genre]}</span><span>${f.year}</span></div>`;
+}
+
+function reshootDots(){ return `<span class="reshoots" aria-label="${S.reshoots} reshoots left">Reshoots ${[0,1].map(i=>`<i class="${i<S.reshoots?"":"used"}"></i>`).join("")}</span>`; }
+
+function renderReelShell(){
+  $("reel").innerHTML = `<div class="reel-top"><p class="eyebrow">Spin ${Math.min(filled()+1,6)} of 6</p>${reshootDots()}</div><div class="screen"></div>`;
+}
+
+function renderReel(){
+  const r = $("reel");
+  if (S.phase==="done") return;
+  if (S.phase==="idle" || S.film==null){
+    S.phase = "idle";
+    r.innerHTML = `<div class="reel-top"><p class="eyebrow">Spin ${filled()+1} of 6</p>${reshootDots()}</div>
+      <div class="screen"><p class="film-title" style="color:var(--muted)">${filled()?"Next feature loading…":"The projector is warming up"}</p>
+      <p class="hint">Land on a movie, then draft one of its characters into an open role.</p></div>
+      <div class="actions"><button class="btn" id="spinBtn">Spin the reel</button></div>`;
+    $("spinBtn").onclick = () => spin(false);
+    return;
+  }
+  const f = FILMS[S.film];
+  const cast = f.chars.map((c,i)=>{
+    const dup = onTeam(c.name);
+    return `<button data-i="${i}" aria-pressed="${S.picked===i}" ${dup?"disabled":""}>${esc(c.name)}${dup?"<small>Already on your crew</small>":""}</button>`;
+  }).join("");
+  const allDup = f.chars.every(c=>onTeam(c.name));
+  r.innerHTML = `<div class="reel-top"><p class="eyebrow">Spin ${filled()+1} of 6</p>${reshootDots()}</div>
+    <div class="screen"></div>
+    <p class="hint">${S.picked==null ? "Pick a character, then tap an open role below." : `Now tap an open role for <b style="color:var(--bulb)">${esc(f.chars[S.picked].name)}</b>.`}</p>
+    <div class="cast">${cast}</div>
+    <div class="actions"><button class="btn ghost" id="reshootBtn" ${S.reshoots>0?"":"disabled"}>Reshoot (${S.reshoots} left)</button>
+    ${allDup && S.reshoots===0 ? `<button class="btn" id="skipBtn">Spin a different movie</button>`:""}</div>`;
+  renderScreen(f,false);
+  r.querySelectorAll(".cast button").forEach(b => b.onclick = () => { const i=+b.dataset.i; S.picked = S.picked===i?null:i; render(); });
+  $("reshootBtn").onclick = () => spin(true);
+  const sk=$("skipBtn"); if(sk) sk.onclick=()=>spin(false);
+}
+
+function renderSlots(){
+  const targeting = S.phase==="film" && S.picked!=null;
+  $("slots").innerHTML = ROLES.map((role,i)=>{
+    const c = S.team[i];
+    if (c) return `<div class="slot filled"><span class="role">${role.name}</span><span class="who">${esc(c.name)}</span><span class="from">${esc(FILMS[c.film].title)}</span></div>`;
+    const t = targeting ? ` target" role="button" tabindex="0" data-slot="${i}" aria-label="Place as ${role.name}` : ` open`;
+    return `<div class="slot${t}"><span class="role">${role.name}</span><span class="who">${targeting?"Place here":"Open"}</span></div>`;
+  }).join("");
+  document.querySelectorAll(".slot.target").forEach(el=>{
+    const go = () => place(+el.dataset.slot);
+    el.onclick = go; el.onkeydown = e => { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } };
+  });
+}
+
+function place(slot){
+  const c = FILMS[S.film].chars[S.picked];
+  S.team[slot] = c; S.picked=null; S.film=null;
+  S.phase = filled()===6 ? "done" : "idle";
+  render();
+  if (S.phase==="done") $("result").scrollIntoView({behavior: reduce?"auto":"smooth", block:"start"});
+}
+
+function fmtPct(p){ return p<1 ? "<1%" : (p>=99.5 ? "99%" : (p<10 ? p.toFixed(1) : Math.round(p)) + "%"); }
+function shareText(res){
+  const v = verdict(res.pct);
+  return `🧟 FINAL REEL: ${fmtPct(res.pct)} chance of survival\n${v[1]}\n\n` +
+    res.rows.map(r=>`${ICONS[r.slot]} ${ROLES[r.slot].name}: ${r.char.name} (${FILMS[r.char.film].title})`).join("\n");
+}
+
+function renderResult(){
+  const el = $("result");
+  if (S.phase!=="done"){ el.hidden=true; $("reel").hidden=false; return; }
+  $("reel").hidden=true; el.hidden=false;
+  const res = scoreTeam(S.team, FILMS, ROLES);
+  const v = verdict(res.pct);
+  const minEff = Math.min(...res.rows.map(r=>r.eff));
+  const rows = res.rows.map(r=>{
+    const mods = r.mods.map(m=>`<span class="mod ${m[1]>=0?"pos":"neg"}">${m[1]>=0?"+":"−"}${Math.abs(m[1]).toFixed(1).replace(/\.0$/,"")} ${esc(m[0])}</span>`).join("");
+    return `<div class="brow"><span class="r">${ROLES[r.slot].name}</span>
+      <div><span class="n">${esc(r.char.name)}<small>${esc(FILMS[r.char.film].title)} · base ${r.base}/10</small></span>
+      ${mods?`<div class="mods">${mods}</div>`:""}
+      <div class="bar"><span class="${r.eff===minEff?"weak":""}" style="width:${Math.min(100,r.eff*10)}%"></span></div></div>
+      <span class="score">${r.eff.toFixed(1)}<small>/10</small></span></div>`;
+  }).join("");
+  el.innerHTML = `<p class="eyebrow">Your odds</p>
+    <div class="odds"><span class="pct ${res.pct<25?"low":""}">${fmtPct(res.pct)}</span><span class="lbl">chance of survival</span></div>
+    <div><h2 class="verdict">${esc(v[1])}</h2><p class="blurb">${esc(v[2])}</p></div>
+    <div class="story">${story(res).map(l=>`<p>${esc(l)}</p>`).join("")}</div>
+    <div class="breakdown"><p class="eyebrow">Call sheet breakdown</p>${rows}</div>
+    <div class="actions"><button class="btn" id="copyBtn">Copy my crew</button><button class="btn ghost" id="againBtn">New game</button><span class="toast" id="toast" role="status"></span></div>
+    <textarea class="share" id="shareBox" readonly hidden aria-label="Share text"></textarea>`;
+  const txt = shareText(res);
+  $("copyBtn").onclick = () => {
+    const done = () => { $("toast").textContent = "Copied"; };
+    const fallback = () => { const b=$("shareBox"); b.value=txt; b.hidden=false; b.focus(); b.select(); $("toast").textContent="Select and copy the text below"; };
+    try { navigator.clipboard.writeText(txt).then(done, fallback); } catch(e){ fallback(); }
+  };
+  $("againBtn").onclick = () => { S = fresh(); render(); window.scrollTo({top:0, behavior: reduce?"auto":"smooth"}); };
+}
+
+function render(){ renderReel(); renderSlots(); renderResult(); }
+
+function start(data){ S = restore(data); render(); }
+window.claude?.hot?.snapshot?.(() => snapshot());
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
