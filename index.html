@@ -388,37 +388,37 @@ function scoreTeam(team, FILMS, ROLES) {
 }
 
 const VERDICTS = [
-  [90, "Apocalypse? What apocalypse?", "You didn't just survive. You rebuilt society and started a farmers market."],
-  [75, "Rebuilt civilization", "A walled town, working generators, and a weekly movie night."],
-  [50, "Held the line", "Battered, short on supplies, but still standing at the barricade."],
-  [25, "Coin flip at the barricade", "Some nights you hold, some nights you run. Mostly you run."],
-  [10, "Didn't make it past week one", "The plan looked great on paper. The zombies did not read the paper."],
-  [0,  "Zombie chow", "It was over before the opening credits finished."],
+  [90, "Built to last", "On paper, this crew could outlast the apocalypse. Now the dice get a say."],
+  [75, "Strong contenders", "Most crews would kill for these odds. Don't get cocky."],
+  [50, "Better than a coin flip", "A solid crew with a couple of soft spots the horde will find."],
+  [25, "Long shot", "There's a path to Day 100. It's narrow, and it's dark."],
+  [10, "Grim forecast", "It'll take some lucky rolls to get anyone out of this alive."],
+  [0,  "The zombies like these odds", "This crew needs a miracle. Still, dice are dice."],
 ];
 function verdict(pct) { return VERDICTS.find(v => pct >= v[0]); }
 
 const WEAK_LINES = [
-  "Nobody took charge, and the group split up on Day 2. You know how that goes.",
-  "Nobody could figure out how to fix the radio, the generator, or the plan.",
-  "When the horde broke through the fence, nobody could hold the door.",
-  "Nobody had a trick up their sleeve when the plan fell apart on Day 4.",
-  "Nobody scouted the mall before you moved in. It was not empty.",
-  "Plenty of courage, not a lot of aim. The ammo ran out fast.",
+  "Biggest worry: nobody is really in charge, and crews like that split up.",
+  "Biggest worry: nobody here can fix the radio, the generator, or the plan.",
+  "Biggest worry: when the fence comes down, nobody can hold the door.",
+  "Biggest worry: there's no backup plan for when everything goes sideways.",
+  "Biggest worry: nobody knows the back way out.",
+  "Biggest worry: plenty of courage, not a lot of aim.",
 ];
 const STRONG_LINES = [
-  "Your leader kept everyone moving in the same direction, which is rarer than you'd think.",
-  "Your brains rigged the water, the power, and a truly great alarm system.",
-  "Your muscle cleared doorways like it was a hobby.",
-  "Your wildcard pulled off the move nobody saw coming, and it saved everyone.",
-  "Your scout always found the back way out.",
-  "Your marksman made every shot count from the rooftop.",
+  "Best asset: a leader who can keep everyone moving in the same direction.",
+  "Best asset: brains who can rig the water, the power, and a great alarm system.",
+  "Best asset: muscle that clears doorways like it's a hobby.",
+  "Best asset: a wildcard who might pull off the move nobody sees coming.",
+  "Best asset: a scout who always finds the back way out.",
+  "Best asset: a marksman who makes every shot count from the rooftop.",
 ];
 function story(result) {
   const sorted = [...result.rows].sort((a, b) => a.eff - b.eff);
   const lines = [STRONG_LINES[sorted[5].slot]];
   if (sorted[0].eff < 7) lines.push(WEAK_LINES[sorted[0].slot]);
   const tr = result.rows.find(r => r.char.traits.includes("traitor") && result.rows.some(o => o.mods.some(m => m[0].startsWith("Can't trust"))));
-  if (tr) lines.push(tr.char.name + " was never fully on your side.");
+  if (tr) lines.push("Keep an eye on " + tr.char.name + ". They may not be fully on your side.");
   return lines;
 }
 
