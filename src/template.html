@@ -106,6 +106,24 @@ button:focus-visible{outline:3px solid var(--bulb);outline-offset:2px}
 .bar span{display:block;height:100%;background:var(--bulb)}
 .bar span.weak{background:var(--blood)}
 .toast{font-family:var(--f-mono);font-size:.82rem;color:var(--mint);align-self:center}
+/* Fate roll */
+.fate{display:flex;flex-direction:column;gap:12px;padding:16px;border:1.5px solid var(--bulb-dim);border-radius:8px;background:#0f1719}
+.fate-intro{margin:0;color:var(--muted)}
+.fate-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.fate-count{font-family:var(--f-display);font-size:2.2rem;line-height:1;color:var(--bulb);font-variant-numeric:tabular-nums}
+.fate-count.wipe{color:var(--blood)}
+.fate-verdict{font-family:var(--f-label);font-weight:700;font-size:1.3rem}
+.fate-list{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.fate-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 12px;border-radius:6px;background:var(--panel);border:1px solid var(--line)}
+.fate-row.dead{border-color:rgba(196,71,58,.45)}
+.tag{font-family:var(--f-label);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:.72rem;padding:3px 8px;border-radius:3px;border:1px solid currentColor;white-space:nowrap}
+.tag.lived{color:var(--mint)}.tag.dead{color:var(--blood)}
+.fate-row .who{font-family:var(--f-label);font-weight:700;font-size:1.05rem;line-height:1.2}
+.fate-row .how{margin:0;font-size:.95rem;color:var(--muted);line-height:1.35}.fate-row .how b{color:var(--ink)}
+.fate-row .odds-i{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);text-align:right;white-space:nowrap}
+.fate.rolling .fate-row,.fate.rolling .fate-head{animation:flip .45s ease-out both}
+@keyframes flip{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fate.rolling .fate-row,.fate.rolling .fate-head{animation:none}}
 textarea.share{width:100%;min-height:150px;background:#0a1012;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px;font-family:var(--f-mono);font-size:.8rem}
 
 details.how{background:transparent;border-top:1px solid var(--line);padding-top:14px}
@@ -150,11 +168,11 @@ details.how b{color:var(--ink);font-weight:600}
 
 const ICONS = ["👑","🧠","💪","🃏","🔦","🎯"];
 let S;
-function fresh(){ return { team:Array(6).fill(null), used:[], film:null, picked:null, reshoots:2, phase:"idle" }; }
+function fresh(){ return { team:Array(6).fill(null), used:[], film:null, picked:null, reshoots:2, phase:"idle", fate:null }; }
 function charRef(c){ return c ? [c.film, FILMS[c.film].chars.indexOf(c)] : null; }
 function fromRef(r){ return r ? FILMS[r[0]].chars[r[1]] : null; }
-function snapshot(){ return { team:S.team.map(charRef), used:S.used, film:S.film, picked:S.picked, reshoots:S.reshoots, phase:S.phase==="spinning"?"film":S.phase }; }
-function restore(d){ const s=fresh(); if(!d||!d.team) return s; s.team=d.team.map(fromRef); s.used=d.used||[]; s.film=d.film; s.picked=d.picked; s.reshoots=d.reshoots; s.phase=d.phase||"idle"; return s; }
+function snapshot(){ return { team:S.team.map(charRef), used:S.used, film:S.film, picked:S.picked, reshoots:S.reshoots, phase:S.phase==="spinning"?"film":S.phase, fate:S.fate }; }
+function restore(d){ const s=fresh(); if(!d||!d.team) return s; s.team=d.team.map(fromRef); s.used=d.used||[]; s.film=d.film; s.picked=d.picked; s.reshoots=d.reshoots; s.phase=d.phase||"idle"; s.fate=d.fate||null; return s; }
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -251,7 +269,31 @@ function fmtPct(p){ return p<1 ? "<1%" : (p>=99.5 ? "99%" : (p<10 ? p.toFixed(1)
 function shareText(res){
   const v = verdict(res.pct);
   return `🧟 FINAL REEL: ${fmtPct(res.pct)} chance of survival\n${v[1]}\n\n` +
-    res.rows.map(r=>`${ICONS[r.slot]} ${ROLES[r.slot].name}: ${r.char.name} (${FILMS[r.char.film].title})`).join("\n");
+    res.rows.map((r,i)=>`${S.fate ? (S.fate[i].lived?"✅":"🧟") : ICONS[r.slot]} ${ROLES[r.slot].name}: ${r.char.name} (${FILMS[r.char.film].title})`).join("\n") +
+    (S.fate ? `\n\nFate roll: ${S.fate.filter(f=>f.lived).length} of 6 survived` : "");
+}
+
+function fateHTML(res, animate){
+  if (!S.fate){
+    const odds = fateOdds(res);
+    const expect = odds.reduce((a,b)=>a+b,0);
+    return `<div class="fate" id="fate"><p class="eyebrow">The moment of truth</p>
+      <p class="fate-intro">Each crew member rolls against their own odds. Strong role fits and survivors have a better shot. ${expect<0.5 ? "Right now, the odds say nobody makes it." : `Expect about ${Math.round(expect)} of 6 to make it.`}</p>
+      <div class="actions"><button class="btn" id="rollBtn">Roll your fate</button></div></div>`;
+  }
+  const n = S.fate.filter(f=>f.lived).length;
+  const order = S.fate.map((f,i)=>i).sort((a,b)=>S.fate[a].day-S.fate[b].day);
+  const items = order.map((i,k)=>{
+    const f = S.fate[i], c = res.rows[i].char;
+    const d = animate ? ` style="animation-delay:${k*0.55}s"` : "";
+    return `<li class="fate-row ${f.lived?"":"dead"}"${d}><span class="tag ${f.lived?"lived":"dead"}">${f.lived?"Survived":"Day "+f.day}</span>
+      <p class="how"><b class="who">${esc(c.name)}</b> ${esc(f.line)}.</p>
+      <span class="odds-i">${f.p}% odds</span></li>`;
+  }).join("");
+  const d = animate ? ` style="animation-delay:${6*0.55}s"` : "";
+  return `<div class="fate${animate?" rolling":""}" id="fate"><p class="eyebrow">The fate roll</p>
+    <ol class="fate-list">${items}</ol>
+    <div class="fate-head"${d}><span class="fate-count ${n===0?"wipe":""}">${n} of 6</span><span class="fate-verdict">${FATE_VERDICTS[n]}</span></div></div>`;
 }
 
 function renderResult(){
@@ -273,11 +315,18 @@ function renderResult(){
     <div class="odds"><span class="pct ${res.pct<25?"low":""}">${fmtPct(res.pct)}</span><span class="lbl">chance of survival</span></div>
     <div><h2 class="verdict">${esc(v[1])}</h2><p class="blurb">${esc(v[2])}</p></div>
     <div class="story">${story(res).map(l=>`<p>${esc(l)}</p>`).join("")}</div>
+    ${fateHTML(res, false)}
     <div class="breakdown"><p class="eyebrow">Call sheet breakdown</p>${rows}</div>
     <div class="actions"><button class="btn" id="copyBtn">Copy my crew</button><button class="btn ghost" id="againBtn">New game</button><span class="toast" id="toast" role="status"></span></div>
     <textarea class="share" id="shareBox" readonly hidden aria-label="Share text"></textarea>`;
-  const txt = shareText(res);
+  const rb = $("rollBtn");
+  if (rb) rb.onclick = () => {
+    S.fate = rollFate(res);
+    $("fate").outerHTML = fateHTML(res, !reduce);
+    $("fate").scrollIntoView({behavior: reduce?"auto":"smooth", block:"start"});
+  };
   $("copyBtn").onclick = () => {
+    const txt = shareText(res);
     const done = () => { $("toast").textContent = "Copied"; };
     const fallback = () => { const b=$("shareBox"); b.value=txt; b.hidden=false; b.focus(); b.select(); $("toast").textContent="Select and copy the text below"; };
     try { navigator.clipboard.writeText(txt).then(done, fallback); } catch(e){ fallback(); }
