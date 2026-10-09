@@ -80,4 +80,57 @@ function story(result) {
   return lines;
 }
 
-if (typeof module !== "undefined") module.exports = { scoreTeam, verdict, story, TUNE };
+// ---------- Fate roll (random) ----------
+// Each member rolls against their own odds: the team's odds, nudged up or down by how well they fit their role.
+const FATE_DEATHS = [
+  ["went to scout for a new leader's hideout and never came back", "tried to rally the group from the front line, and the front line moved"],
+  ["went back for the research notes", "was sure the cure would work and tested it on themselves"],
+  ["held the door so everyone else could run", "took on one zombie too many in the stairwell"],
+  ["tried something truly unexpected. It did not work", "pressed the big red button to see what it does"],
+  ["took the shortcut through the hospital", "scouted one block too far on a supply run"],
+  ["ran out of ammo on the rooftop", "stayed behind to cover the retreat"],
+];
+const FATE_GENERIC_DEATHS = [
+  "got bitten on a midnight snack run",
+  "trusted a stranger at the gas station",
+  "said \"I'll be right back\"",
+  "fell asleep on watch",
+  "went into the basement alone",
+  "stopped to pet a very suspicious dog",
+];
+const FATE_LIVES = [
+  "made it to Day 100 with a story for every scar",
+  "made it to the safe zone without a scratch",
+  "ended up running the new settlement",
+  "survived and still won't talk about the mall",
+  "made it out, barely, and somehow kept their sense of humor",
+  "lived to see the first harvest at the farm",
+];
+function fateOdds(result) {
+  const P = Math.min(0.99, Math.max(0.01, result.pct / 100));
+  const base = Math.log(P / (1 - P));
+  const mean = result.rows.reduce((s, r) => s + r.eff, 0) / result.rows.length;
+  return result.rows.map(r => {
+    let x = base + 0.5 * (r.eff - mean);
+    if (r.char.traits.includes("survivor")) x += 0.4;
+    if (r.char.traits.includes("reckless")) x -= 0.4;
+    return Math.min(0.99, Math.max(0.01, 1 / (1 + Math.exp(-x))));
+  });
+}
+function rollFate(result, rng) {
+  rng = rng || Math.random;
+  const pick = a => a[Math.floor(rng() * a.length)];
+  const odds = fateOdds(result);
+  return result.rows.map((r, i) => {
+    const lived = rng() < odds[i];
+    let line;
+    if (lived) line = pick(FATE_LIVES);
+    else if (r.char.traits.includes("traitor") && rng() < 0.6) line = "tried to sell out the group and got left outside the gate";
+    else if (r.char.traits.includes("reckless") && rng() < 0.6) line = "ran toward the horde instead of away from it";
+    else line = rng() < 0.5 ? pick(FATE_DEATHS[r.slot]) : pick(FATE_GENERIC_DEATHS);
+    return { slot: r.slot, lived, day: lived ? 100 : 1 + Math.floor(rng() * 60), line, p: Math.round(odds[i] * 100) };
+  });
+}
+const FATE_VERDICTS = ["Total wipeout", "Last one standing", "A few made it", "A few made it", "Most of the crew made it", "Most of the crew made it", "Everybody made it"];
+
+if (typeof module !== "undefined") module.exports = { scoreTeam, verdict, story, TUNE, fateOdds, rollFate, FATE_VERDICTS };
