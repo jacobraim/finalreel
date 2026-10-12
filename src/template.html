@@ -54,6 +54,8 @@ button:focus-visible{outline:3px solid var(--bulb);outline-offset:2px}
 .film-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
 .chip{font-family:var(--f-label);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:.75rem;padding:2px 8px;border-radius:3px;border:1px solid currentColor}
 .g-SH{color:#7fb0e6}.g-AC{color:#e88b5a}.g-AD{color:#d8c25a}.g-FS{color:#b79be8}.g-HO{color:#e06a6a}
+.wiki{color:var(--bulb);text-decoration:underline;text-underline-offset:3px;font-family:var(--f-mono);font-size:.8rem}
+.wiki:hover{color:var(--ink)}
 .screen.spinning .film-title{filter:blur(1.5px);opacity:.75}
 .hint{color:var(--muted);margin:0;font-size:.95rem}
 .cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
@@ -204,7 +206,7 @@ function renderScreen(f, blur){
   const sc = document.querySelector(".screen"); if(!sc) return;
   sc.classList.toggle("spinning", !!blur);
   sc.innerHTML = `<p class="film-title">${esc(f.title)}</p>
-    <div class="film-meta"><span class="chip g-${f.genre}">${GENRES[f.genre]}</span><span>${f.year}</span></div>`;
+    <div class="film-meta"><span class="chip g-${f.genre}">${GENRES[f.genre]}</span><span>${f.year}</span>${blur?"":`<a class="wiki" href="${f.wiki}" target="_blank" rel="noopener noreferrer">Wikipedia</a>`}</div>`;
 }
 
 function reshootDots(){ return `<span class="reshoots" aria-label="${S.reshoots} reshoots left">Reshoots ${[0,1].map(i=>`<i class="${i<S.reshoots?"":"used"}"></i>`).join("")}</span>`; }
