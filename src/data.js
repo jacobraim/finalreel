@@ -150,6 +150,9 @@ const FILMS_RAW = [
  "Robert Neville|7,10,7,6,8,9|loner,survivor","Sam the Dog|1,1,6,9,10,0|heart","Anna|6,6,3,5,6,4|","Ethan|1,3,1,4,3,0|"]],
 ];
 
+// Wikipedia article for each film, same order as FILMS_RAW
+const WIKI = ["The Avengers (2012 film)", "Thor: Ragnarok", "Black Panther (film)", "Guardians of the Galaxy (film)", "Captain America: The Winter Soldier", "The Dark Knight", "Wonder Woman (2017 film)", "Superman (1978 film)", "Spider-Man 2", "Spider-Man: Into the Spider-Verse", "X-Men (film)", "Logan (film)", "The Incredibles", "Die Hard", "Mad Max: Fury Road", "John Wick (film)", "Terminator 2: Judgment Day", "Mission: Impossible – Fallout", "The Matrix", "Top Gun: Maverick", "Speed (1994 film)", "Fast Five", "First Blood", "Predator (film)", "Gladiator (2000 film)", "The Bourne Identity (2002 film)", "Raiders of the Lost Ark", "Indiana Jones and the Last Crusade", "Jurassic Park (film)", "Jurassic World", "Pirates of the Caribbean: The Curse of the Black Pearl", "The Goonies", "Jumanji: Welcome to the Jungle", "The Mummy (1999 film)", "National Treasure (film)", "The Princess Bride (film)", "The Revenant (2015 film)", "Moana (2016 film)", "The Lord of the Rings: The Fellowship of the Ring", "The Lord of the Rings: The Two Towers", "Harry Potter and the Philosopher's Stone (film)", "Harry Potter and the Deathly Hallows – Part 2", "Back to the Future", "Star Wars (film)", "The Empire Strikes Back", "Avatar (2009 film)", "Interstellar (film)", "The Martian (film)", "Edge of Tomorrow", "Ghostbusters", "Men in Black (1997 film)", "The Hunger Games (film)", "Dune (2021 film)", "Shrek", "The Wizard of Oz (1939 film)", "Jaws (film)", "Alien (film)", "Aliens (film)", "Halloween (1978 film)", "Night of the Living Dead", "Shaun of the Dead", "Zombieland", "28 Days Later", "World War Z (film)", "Scream (1996 film)", "The Thing (1982 film)", "Gremlins", "Tremors (1990 film)", "A Quiet Place", "Train to Busan", "I Am Legend (film)"];
+
 const ROLES = [
  {k:"L",name:"Leader",w:1.3},
  {k:"B",name:"Brains",w:1.0},
@@ -162,6 +165,7 @@ const GENRES = {SH:"Superhero",AC:"Action",AD:"Adventure",FS:"Fantasy / Sci-Fi",
 
 const FILMS = FILMS_RAW.map(([title,year,genre,franchise,chars],i)=>({
   id:i,title,year,genre,franchise,
+  wiki:"https://en.wikipedia.org/wiki/"+encodeURIComponent(WIKI[i].replace(/ /g,"_")).replace(/%3A/g,":").replace(/%28/g,"(").replace(/%29/g,")").replace(/%27/g,"'"),
   chars:chars.map(s=>{const [name,sc,tr]=s.split("|");return {name,film:i,scores:sc.split(",").map(Number),traits:tr?tr.split(","):[]};})
 }));
 
