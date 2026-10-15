@@ -46,6 +46,12 @@ button:focus-visible{outline:3px solid var(--bulb);outline-offset:2px}
 /* Reel */
 .reel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:14px}
 .reel-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.counters{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.leads{font-family:var(--f-mono);font-size:.85rem;color:var(--muted)}
+.leads b{color:var(--bulb);font-weight:600}
+.leads.full b{color:var(--blood)}
+.lead-tag{display:inline-block;font-family:var(--f-label);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:.66rem;color:var(--bulb);border:1px solid var(--bulb-dim);border-radius:3px;padding:1px 5px;vertical-align:middle}
+.cast button .lead-tag{display:table;margin-bottom:4px}
 .reshoots{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);display:flex;gap:6px;align-items:center}
 .reshoots i{width:12px;height:12px;border-radius:50%;background:var(--bulb);display:inline-block;box-shadow:0 0 8px rgba(242,181,68,.5)}
 .reshoots i.used{background:transparent;border:1.5px solid var(--bulb-dim);box-shadow:none}
@@ -159,6 +165,7 @@ details.how b{color:var(--ink);font-weight:600}
       <li><b>Your weakest link drags everyone down.</b> One hopeless Marksman can sink a team of legends.</li>
       <li><b>Personalities matter.</b> Some characters bring the whole group's morale up. Big egos clash. Lone wolves hate group roles. And not everyone in a movie is on the hero's side.</li>
       <li>Teammates from the same franchise work better together. A crew from all five genres earns a crossover bonus.</li>
+      <li><b>★ Leads are capped.</b> Each movie's star is marked as its lead, and you can only draft three leads per crew. Your other three picks have to be supporting characters.</li>
       <li>Six spins, two reshoots. Same crew, same odds, every time. It's supposed to be hard.</li>
     </ul>
   </details>
@@ -209,10 +216,13 @@ function renderScreen(f, blur){
     <div class="film-meta"><span class="chip g-${f.genre}">${GENRES[f.genre]}</span><span>${f.year}</span>${blur?"":`<a class="wiki" href="${f.wiki}" target="_blank" rel="noopener noreferrer">Wikipedia</a>`}</div>`;
 }
 
+const leadsUsed = () => S.team.filter(c => c && c.lead).length;
+function leadCount(){ const n=leadsUsed(); return `<span class="leads ${n>=MAX_LEADS?"full":""}" aria-label="${n} of ${MAX_LEADS} leads used">Leads <b>${n}/${MAX_LEADS}</b></span>`; }
+function reelTop(){ return `<div class="reel-top"><p class="eyebrow">Spin ${Math.min(filled()+1,6)} of 6</p><div class="counters">${leadCount()}${reshootDots()}</div></div>`; }
 function reshootDots(){ return `<span class="reshoots" aria-label="${S.reshoots} reshoots left">Reshoots ${[0,1].map(i=>`<i class="${i<S.reshoots?"":"used"}"></i>`).join("")}</span>`; }
 
 function renderReelShell(){
-  $("reel").innerHTML = `<div class="reel-top"><p class="eyebrow">Spin ${Math.min(filled()+1,6)} of 6</p>${reshootDots()}</div><div class="screen"></div>`;
+  $("reel").innerHTML = `${reelTop()}<div class="screen"></div>`;
 }
 
 function renderReel(){
@@ -220,7 +230,7 @@ function renderReel(){
   if (S.phase==="done") return;
   if (S.phase==="idle" || S.film==null){
     S.phase = "idle";
-    r.innerHTML = `<div class="reel-top"><p class="eyebrow">Spin ${filled()+1} of 6</p>${reshootDots()}</div>
+    r.innerHTML = `${reelTop()}
       <div class="screen"><p class="film-title" style="color:var(--muted)">${filled()?"Next feature loading…":"The projector is warming up"}</p>
       <p class="hint">Land on a movie, then draft one of its characters into an open role.</p></div>
       <div class="actions"><button class="btn" id="spinBtn">Spin the reel</button></div>`;
@@ -228,12 +238,13 @@ function renderReel(){
     return;
   }
   const f = FILMS[S.film];
+  const blocked = c => onTeam(c.name) ? "Already on your crew" : (c.lead && leadsUsed()>=MAX_LEADS ? `Lead limit reached (${MAX_LEADS}/${MAX_LEADS})` : "");
   const cast = f.chars.map((c,i)=>{
-    const dup = onTeam(c.name);
-    return `<button data-i="${i}" aria-pressed="${S.picked===i}" ${dup?"disabled":""}>${esc(c.name)}${dup?"<small>Already on your crew</small>":""}</button>`;
+    const why = blocked(c);
+    return `<button data-i="${i}" aria-pressed="${S.picked===i}" ${why?"disabled":""}>${c.lead?`<span class="lead-tag">★ Lead</span>`:""}${esc(c.name)}${why?`<small>${why}</small>`:""}</button>`;
   }).join("");
-  const allDup = f.chars.every(c=>onTeam(c.name));
-  r.innerHTML = `<div class="reel-top"><p class="eyebrow">Spin ${filled()+1} of 6</p>${reshootDots()}</div>
+  const allDup = f.chars.every(c=>blocked(c));
+  r.innerHTML = `${reelTop()}
     <div class="screen"></div>
     <p class="hint">${S.picked==null ? "Pick a character, then tap an open role below." : `Now tap an open role for <b style="color:var(--bulb)">${esc(f.chars[S.picked].name)}</b>.`}</p>
     <div class="cast">${cast}</div>
@@ -249,7 +260,7 @@ function renderSlots(){
   const targeting = S.phase==="film" && S.picked!=null;
   $("slots").innerHTML = ROLES.map((role,i)=>{
     const c = S.team[i];
-    if (c) return `<div class="slot filled"><span class="role">${role.name}</span><span class="who">${esc(c.name)}</span><span class="from">${esc(FILMS[c.film].title)}</span></div>`;
+    if (c) return `<div class="slot filled"><span class="role">${role.name}${c.lead?` <span class="lead-tag">★ Lead</span>`:""}</span><span class="who">${esc(c.name)}</span><span class="from">${esc(FILMS[c.film].title)}</span></div>`;
     const t = targeting ? ` target" role="button" tabindex="0" data-slot="${i}" aria-label="Place as ${role.name}` : ` open`;
     return `<div class="slot${t}"><span class="role">${role.name}</span><span class="who">${targeting?"Place here":"Open"}</span></div>`;
   }).join("");
