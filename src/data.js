@@ -163,10 +163,23 @@ const ROLES = [
 ];
 const GENRES = {SH:"Superhero",AC:"Action",AD:"Adventure",FS:"Fantasy / Sci-Fi",HO:"Horror"};
 
+// Each film's lead is its first-listed character, except where noted.
+// null means the film's actual lead isn't in its character list (e.g. Frodo, Harry, Luke in the sequels).
+const LEAD_OVERRIDES = {
+  "The Avengers":"Iron Man",
+  "Mad Max: Fury Road":"Max Rockatansky",
+  "The Lord of the Rings: The Two Towers":null,
+  "Harry Potter and the Deathly Hallows – Part 2":null,
+  "The Empire Strikes Back":null,
+};
+const MAX_LEADS = 3;
+
 const FILMS = FILMS_RAW.map(([title,year,genre,franchise,chars],i)=>({
   id:i,title,year,genre,franchise,
   wiki:"https://en.wikipedia.org/wiki/"+encodeURIComponent(WIKI[i].replace(/ /g,"_")).replace(/%3A/g,":").replace(/%28/g,"(").replace(/%29/g,")").replace(/%27/g,"'"),
-  chars:chars.map(s=>{const [name,sc,tr]=s.split("|");return {name,film:i,scores:sc.split(",").map(Number),traits:tr?tr.split(","):[]};})
+  chars:chars.map((s,j)=>{const [name,sc,tr]=s.split("|");
+    const leadName = title in LEAD_OVERRIDES ? LEAD_OVERRIDES[title] : chars[0].split("|")[0];
+    return {name,film:i,scores:sc.split(",").map(Number),traits:tr?tr.split(","):[],lead:name===leadName};})
 }));
 
-if (typeof module!=="undefined") module.exports={FILMS,ROLES,GENRES};
+if (typeof module!=="undefined") module.exports={FILMS,ROLES,GENRES,MAX_LEADS};
