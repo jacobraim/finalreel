@@ -38,6 +38,14 @@ button:focus-visible{outline:3px solid var(--bulb);outline-offset:2px}
 .marquee::before{top:6px}.marquee::after{bottom:6px}
 .marquee h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(2.2rem,8vw,3.8rem);letter-spacing:.04em;line-height:1;color:var(--bulb);
   text-shadow:0 0 18px rgba(242,181,68,.35)}
+.marquee h1{padding-bottom:.42em;margin-bottom:-.12em}
+.marquee h1 .blood{position:relative;display:inline-block;color:var(--blood);text-shadow:0 0 16px rgba(196,71,58,.5),0 2px 0 #7a1f17}
+.drip{position:absolute;top:74%;left:var(--x);width:.1em;height:var(--h);border-radius:0 0 .05em .05em;background:linear-gradient(var(--blood),#8e2a20);transform-origin:top;animation:drip 2.6s cubic-bezier(.3,0,.2,1) var(--d) both}
+.drip.thin{width:.07em}
+.drip::after{content:"";position:absolute;left:50%;bottom:-.07em;width:.17em;height:.2em;transform:translateX(-50%);background:#8e2a20;border-radius:50% 50% 50% 50%/40% 40% 60% 60%}
+.drip.thin::after{width:.12em;height:.14em}
+@keyframes drip{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@media (prefers-reduced-motion:reduce){.drip{animation:none}}
 .marquee p{margin:8px 0 0;font-family:var(--f-label);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.9rem;color:var(--muted)}
 .marquee p b{color:var(--ink);font-weight:600}
 
@@ -144,7 +152,7 @@ details.how b{color:var(--ink);font-weight:600}
 
 <div class="wrap">
   <header class="marquee">
-    <h1>FINAL REEL</h1>
+    <h1 aria-label="Final Reel"><span aria-hidden="true">FI<span class="blood">N<i class="drip" style="--x:.14em;--h:.42em;--d:.2s"></i><i class="drip" style="--x:.5em;--h:.24em;--d:.9s"></i></span>AL RE<span class="blood">E<i class="drip" style="--x:.08em;--h:.5em;--d:.5s"></i><i class="drip thin" style="--x:.42em;--h:.2em;--d:1.3s"></i></span>L</span></h1>
     <p>Spin a movie. Draft its hero. <b>Survive the zombie apocalypse.</b></p>
   </header>
 
