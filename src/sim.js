@@ -1,10 +1,12 @@
 const { FILMS, ROLES } = require("./data.js");
+const CAP = process.env.NOCAP ? 99 : 3;
 const E = require("./engine.js");
 if (process.argv[2]) E.TUNE.T = +process.argv[2];
 if (process.argv[3]) E.TUNE.k = +process.argv[3];
 
 function rnd(n) { return Math.floor(Math.random() * n); }
 function play(strategy) {
+  play.noise = null;
   const team = Array(6).fill(null), used = new Set(), names = new Set();
   let reshoots = 2;
   const spin = () => { let f; do { f = rnd(FILMS.length); } while (used.has(f)); used.add(f); return FILMS[f]; };
@@ -12,10 +14,12 @@ function play(strategy) {
     let film = spin();
     while (true) {
       const opts = [];
-      film.chars.forEach(c => { if (names.has(c.name)) return; team.forEach((t, s) => { if (!t) opts.push([c, s]); }); });
+      film.chars.forEach(c => { if (names.has(c.name)) return; if (c.lead && team.filter(t => t && t.lead).length >= CAP) return; team.forEach((t, s) => { if (!t) opts.push([c, s]); }); });
       if (strategy === "random") { const o = opts[rnd(opts.length)]; team[o[1]] = o[0]; names.add(o[0].name); break; }
+      const noise = strategy === "human" ? (play.noise || (play.noise = new Map())) : null;
       const val = ([c, s]) => {
         let v = c.scores[s];
+        if (noise) { const key = c.name + s; if (!noise.has(key)) noise.set(key, (Math.random() + Math.random() + Math.random() - 1.5) * 4); v += noise.get(key); }
         if (strategy === "expert") {
           if (c.traits.includes("traitor")) v -= 2.5;
           if (c.traits.includes("loner") && s < 4) v -= 1;
@@ -40,7 +44,7 @@ function stats(arr) {
   return `mean ${mean.toFixed(1)}  p10 ${q(.1)}  p50 ${q(.5)}  p90 ${q(.9)}  p99 ${q(.99)}  >=50%: ${(arr.filter(x => x >= 50).length / arr.length * 100).toFixed(1)}%  >=90%: ${(arr.filter(x => x >= 90).length / arr.length * 100).toFixed(2)}%`;
 }
 const N = 20000;
-for (const s of ["random", "greedy", "expert"]) console.log(s.padEnd(7), stats(Array.from({ length: N }, () => play(s))));
+for (const s of ["random", "human", "greedy", "expert"]) console.log(s.padEnd(7), stats(Array.from({ length: N }, () => play(s))));
 
 // Dream team via hill climbing over all characters
 const all = FILMS.flatMap(f => f.chars);
